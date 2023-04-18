@@ -1,33 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SohatNoteBook.DataService.Data;
+using SohatNoteBook.DataService.IConfiguration;
 using SohatNoteBook.Entities.DbSet;
 using SohatNoteBook.Entities.Dto.Incoming;
 
-namespace SohatNoteBook.Api.Controllers
+namespace SohatNoteBook.Api.Controllers.v1
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class UsersController : ControllerBase
+    public class UsersController : BaseController
     {
-        private readonly AppDbContext _context;
-
-        public UsersController(AppDbContext context)
+        public UsersController(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _context = context;
+            
         }
 
-        // Get
         [HttpGet]
+        [HttpHead]
         [Route("GetAll")]
-        public IActionResult GetUsers()
+        public async Task<IActionResult> GetUsers()
         {
-            var users = _context.Users.Where(x => x.Status == 1).ToList();
+            var users = await _unitOfWork.Users.All();
             return Ok(users);
         }
 
         [HttpPost]
         [Route("CreateUser")]
-        public IActionResult AddUser(UserDto user)
+        public async Task<IActionResult> AddUser(UserDto user)
         {
             var _user = new User()
             {
@@ -39,17 +36,18 @@ namespace SohatNoteBook.Api.Controllers
                 DateOfBirth = Convert.ToDateTime(user.DateOfBirth),
                 Country = user.Country
             };
-            _context.Users.Add(_user);
-            _context.SaveChanges();
 
-            return Ok();
+            await _unitOfWork.Users.Add(_user);
+            await _unitOfWork.CompleteAsync();
+
+            return CreatedAtRoute("GetUser", new { _user.Id }, user);
         }
 
         [HttpGet]
-        [Route("GetById")]
-        public IActionResult GetById(Guid Id)
+        [Route("GetById", Name = "GetUser")]
+        public async Task<IActionResult> GetById(Guid Id)
         {
-            var user = _context.Users.FirstOrDefault(x => x.Id == Id);
+            var user = await _unitOfWork.Users.GetById(Id);
             return Ok(user);
         }
     }
