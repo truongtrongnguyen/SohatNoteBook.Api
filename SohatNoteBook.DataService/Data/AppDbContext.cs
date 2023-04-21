@@ -16,8 +16,11 @@ namespace SohatNoteBook.DataService.Data
         {
             
         }
+       
         // dotnet new classlib -n NameClass
+        // dotnet add SohatNoteBook.Api/SohatNoteBook.Api.csproj reference SohatNoteBook.Authentication/SohatNoteBook.Authentication.csproj
 
+        // cd SohatNoteBook.DataService
         // dotnet ef migrations add "Initial" --startup-project ../SohatNoteBook.Api
         // dotnet ef migrations remove --startup-project ../SohatNoteBook.Api
         // dotnet ef database update --startup-project ../SohatNoteBook.Api
