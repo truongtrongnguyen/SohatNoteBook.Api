@@ -32,7 +32,6 @@ namespace SohatNoteBook.DataService.Repository
                 _logger.LogError(ex, "{Repo} All method has generated an error", typeof(RefreshTokensRepository));
                 return new List<RefreshToken>();
             }
-            
         }
 
         public async Task<RefreshToken> GetByRefreshToken(string refreskToken)

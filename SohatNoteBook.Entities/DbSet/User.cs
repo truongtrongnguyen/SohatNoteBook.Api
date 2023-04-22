@@ -15,5 +15,8 @@ namespace SohatNoteBook.Entities.DbSet
         public string Phone { get; set; } = string.Empty;
         public DateTime? DateOfBirth { get; set; }
         public string Country { get; set; } = string.Empty;
+        public string  Address { get; set; } = string.Empty;
+        public string MobileNumber { get; set; } = string.Empty;
+        public  string  Sex { get; set; } = string.Empty;
     }
 }

@@ -16,16 +16,14 @@ namespace SohatNoteBook.Api.Controllers.v1
 {
     public class AccountController : BaseController
     {
-        private readonly UserManager<IdentityUser> _userManager;
         private readonly JwtConfig _jwtConfig;
         private readonly TokenValidationParameters _tokenValidationParameters;
         public AccountController(IUnitOfWork unitOfWork,
                                 UserManager<IdentityUser> userManager,
                                 IOptionsMonitor<JwtConfig> jwtConfig,
                                 TokenValidationParameters tokenValidationParameters)
-                                : base(unitOfWork)
+                                : base(unitOfWork, userManager)
         {
-            _userManager = userManager;
             _jwtConfig = jwtConfig.CurrentValue;
             _tokenValidationParameters = tokenValidationParameters;
         }
@@ -394,6 +392,7 @@ namespace SohatNoteBook.Api.Controllers.v1
                 Subject = new ClaimsIdentity(new[]
                 {
                     new Claim("Id", user.Id),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id),  // tell which user this token belongs to
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),     // unique id
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
