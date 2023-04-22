@@ -40,6 +40,21 @@ builder.Services.AddApiVersioning(opt =>
 // Update the JWT config from the settings
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
 
+// Get the secret from config
+var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"]);
+
+var tokenValidationParameter = new TokenValidationParameters
+{
+    ValidateIssuerSigningKey = true,
+    IssuerSigningKey = new SymmetricSecurityKey(key),
+    ValidateIssuer = false,         // ToDo Update
+    ValidateAudience = false,       // ToDo Update
+    RequireExpirationTime = false,  // ToDo Update
+    ValidateLifetime = true
+};
+
+builder.Services.AddSingleton(tokenValidationParameter);
+
 /*
  * means that we are telling asp.net core that in order for us to utilize any authentication 
  * or any authorization that we want to implement in the future we need to basically build everything on jwt
@@ -52,21 +67,10 @@ builder.Services.AddAuthentication(option =>
 })
 .AddJwtBearer(jwt =>
 {
-    // Get the secret from config
-    var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"]);
-
     // after authorization do you wanna save this token
     jwt.SaveToken = true;
 
-    jwt.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,         // ToDo Update
-        ValidateAudience = false,       // ToDo Update
-        RequireExpirationTime = false,  // ToDo Update
-        ValidateLifetime = true
-    };
+    jwt.TokenValidationParameters = tokenValidationParameter;
 });
 builder.Services.AddDefaultIdentity<IdentityUser>(option =>
     option.SignIn.RequireConfirmedAccount = true

@@ -44,7 +44,7 @@ namespace SohatNoteBook.DataService.Repository
             return await _dbSet.FindAsync(id);
         }
 
-        public Task<bool> Upsert(T entity)
+        public virtual Task<bool> Upsert(T entity)
         {
             throw new NotImplementedException();
         }

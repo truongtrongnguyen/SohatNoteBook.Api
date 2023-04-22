@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using SohatNoteBook.DataService.IConfiguration;
 using SohatNoteBook.DataService.IRepository;
 using SohatNoteBook.DataService.Repository;
@@ -14,8 +15,10 @@ namespace SohatNoteBook.DataService.Data
     {
         private readonly AppDbContext _context;
         private readonly ILogger _logger;
-
+        private readonly TokenValidationParameters _tokenValidationParameters;
         public IUsersRepository Users { get; private set; }
+        public IRefreshTokensRepository RefreshTokens { get; private set; }
+
 
         public UnitOfWork(AppDbContext context, ILoggerFactory loggerFactory)
         {
@@ -23,6 +26,7 @@ namespace SohatNoteBook.DataService.Data
             _logger = loggerFactory.CreateLogger("db_logs");
 
             Users = new UsersRepository(_context, _logger);
+            RefreshTokens = new RefreshTokensRepository(_context, _logger);
         }
 
         public async Task CompleteAsync()

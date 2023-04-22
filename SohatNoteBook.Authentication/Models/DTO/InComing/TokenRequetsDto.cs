@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SohatNoteBook.Authentication.Models.DTO.Outgoing
+namespace SohatNoteBook.Authentication.Models.DTO.InComing
 {
-    public class AuthResult
+    public class TokenRequetsDto
     {
+        [Required]
         public string Token { get; set; } = string.Empty;
+        [Required]
         public string RefreshToken { get; set; } = string.Empty;
-        public bool Success { get; set; }
-        public List<string>? Errors { get; set; }
     }
 }
