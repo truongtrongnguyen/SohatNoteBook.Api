@@ -15,9 +15,10 @@ namespace SohatNoteBook.DataService.Data
     {
         private readonly AppDbContext _context;
         private readonly ILogger _logger;
-        private readonly TokenValidationParameters _tokenValidationParameters;
+
         public IUsersRepository Users { get; private set; }
         public IRefreshTokensRepository RefreshTokens { get; private set; }
+        public IHealthDatasRepository HealthData { get; private set; }
 
 
         public UnitOfWork(AppDbContext context, ILoggerFactory loggerFactory)
@@ -27,6 +28,7 @@ namespace SohatNoteBook.DataService.Data
 
             Users = new UsersRepository(_context, _logger);
             RefreshTokens = new RefreshTokensRepository(_context, _logger);
+            HealthData = new HealthDataRepository(_context, _logger);
         }
 
         public async Task CompleteAsync()

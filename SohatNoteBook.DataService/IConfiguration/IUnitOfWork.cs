@@ -11,6 +11,7 @@ namespace SohatNoteBook.DataService.IConfiguration
     {
         IUsersRepository Users { get; }
         IRefreshTokensRepository RefreshTokens { get; }
+        IHealthDatasRepository HealthData { get; }
 
         Task CompleteAsync();
     }

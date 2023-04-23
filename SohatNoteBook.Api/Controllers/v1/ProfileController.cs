@@ -1,16 +1,24 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using SohatNoteBook.Configuration.Messages;
 using SohatNoteBook.DataService.IConfiguration;
+using SohatNoteBook.Entities.DbSet;
+using SohatNoteBook.Entities.Dto.Errors;
+using SohatNoteBook.Entities.Dto.Generic;
 using SohatNoteBook.Entities.Dto.Incoming.Profile;
+using SohatNoteBook.Entities.Dto.Outgoing.Profile;
 
 namespace SohatNoteBook.Api.Controllers.v1
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProfileController : BaseController
     {
-        public ProfileController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager) : base(unitOfWork, userManager)
+        public ProfileController(IUnitOfWork unitOfWork,
+                                 UserManager<IdentityUser> userManager,
+                                 IMapper mapper) : base(unitOfWork, userManager, mapper)
         {
         }
 
@@ -19,9 +27,14 @@ namespace SohatNoteBook.Api.Controllers.v1
         {
             var loggedInUser = await _userManager.GetUserAsync(HttpContext.User);
 
+            var result = new Result<ProfileDto>();
+
             if (loggedInUser == null)
             {
-                return BadRequest("User Not found");
+                result.Error = PopulateError(400,
+                          ErrorsMessage.ProfileMessage.UserNotFound,
+                          ErrorsMessage.Generic.TypeBadRequest);
+                return BadRequest(result);
             }
 
             var identityId = new Guid(loggedInUser.Id);
@@ -30,25 +43,40 @@ namespace SohatNoteBook.Api.Controllers.v1
 
             if (profile == null)
             {
-                return BadRequest("User Not found");
+                result.Error = PopulateError(400,
+                           ErrorsMessage.ProfileMessage.UserNotFound,
+                           ErrorsMessage.Generic.TypeBadRequest);
+                return BadRequest(result);
             }
 
-            return Ok(profile);
+            var mapperUser = _mapper.Map<ProfileDto>(profile);
+
+            result.Content = mapperUser;
+
+            return Ok(result);
         }
 
         [HttpPut]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto profileDto)
         {
+            var result = new Result<ProfileDto>();
+
             if (!ModelState.IsValid)
             {
-                return BadRequest("invalid payload");
+                result.Error = PopulateError(400,
+                            ErrorsMessage.Generic.InvalidPayload,
+                            ErrorsMessage.Generic.TypeBadRequest);
+                return BadRequest(result);
             }
 
             var loggedInUser = await _userManager.GetUserAsync(HttpContext.User);
 
             if (loggedInUser == null)
             {
-                return BadRequest("User Not found");
+                result.Error = PopulateError(400,
+                           ErrorsMessage.ProfileMessage.UserNotFound,
+                           ErrorsMessage.Generic.TypeBadRequest);   
+                return BadRequest(result);
             }
 
             var identityId = new Guid(loggedInUser.Id);
@@ -57,7 +85,10 @@ namespace SohatNoteBook.Api.Controllers.v1
 
             if (userProfile == null)
             {
-                return BadRequest("User Not found");
+                result.Error = PopulateError(400,
+                            ErrorsMessage.ProfileMessage.UserNotFound,
+                            ErrorsMessage.Generic.TypeBadRequest);
+                return BadRequest(result);
             }
 
             userProfile.Country = profileDto.Country;
@@ -70,9 +101,18 @@ namespace SohatNoteBook.Api.Controllers.v1
             if (isUpdated)
             {
                 await _unitOfWork.CompleteAsync();
-                return Ok(userProfile);
+
+                var mapperUser = _mapper.Map<ProfileDto>(userProfile);
+
+                result.Content = mapperUser;
+
+                return Ok(result);
             }
-            return BadRequest("Something went wrong, please try again later");
+
+            result.Error = PopulateError(500,
+                                        ErrorsMessage.Generic.SomethingWentWrong,
+                                        ErrorsMessage.Generic.UnableToProcess);
+            return BadRequest(result);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -19,10 +20,11 @@ namespace SohatNoteBook.Api.Controllers.v1
         private readonly JwtConfig _jwtConfig;
         private readonly TokenValidationParameters _tokenValidationParameters;
         public AccountController(IUnitOfWork unitOfWork,
+                                IMapper mapper,
                                 UserManager<IdentityUser> userManager,
                                 IOptionsMonitor<JwtConfig> jwtConfig,
                                 TokenValidationParameters tokenValidationParameters)
-                                : base(unitOfWork, userManager)
+                                : base(unitOfWork, userManager, mapper)
         {
             _jwtConfig = jwtConfig.CurrentValue;
             _tokenValidationParameters = tokenValidationParameters;

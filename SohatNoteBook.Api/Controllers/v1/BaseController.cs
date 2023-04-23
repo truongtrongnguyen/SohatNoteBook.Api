@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SohatNoteBook.DataService.IConfiguration;
+using SohatNoteBook.Entities.Dto.Errors;
 
 namespace SohatNoteBook.Api.Controllers.v1
 {
@@ -11,11 +13,23 @@ namespace SohatNoteBook.Api.Controllers.v1
     {
         public readonly IUnitOfWork _unitOfWork;
         public readonly UserManager<IdentityUser> _userManager;
+        public readonly IMapper _mapper;
 
-        public BaseController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        public BaseController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
+            _mapper = mapper;
+        }
+
+        internal Error PopulateError(int code, string message, string type)
+        {
+            return new Error()
+            {
+                Code = code, 
+                Message = message,
+                Type = type
+            };
         }
     }
 }
